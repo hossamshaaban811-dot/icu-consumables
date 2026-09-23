@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مركز الملك فيصل التخصصي — نظام استهلاك المستلزمات</title>
+<style>
+*{box-sizing:border-box} body{margin:0;background:#eef3f8;color:#142033;font-family:Tahoma,Arial,sans-serif}
+.app{max-width:520px;margin:auto;min-height:100vh;background:#f7f9fc}
+header{background:linear-gradient(135deg,#0b6e69,#123b5d);color:#fff;padding:22px 18px 18px;border-radius:0 0 24px 24px;box-shadow:0 7px 22px #123b5d22}
+.brand{display:flex;justify-content:space-between;align-items:center} .brand h1{margin:0;font-size:21px} .brand small{opacity:.78}
+.status{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap} .pill{background:#ffffff18;border:1px solid #ffffff2b;padding:7px 10px;border-radius:999px;font-size:12px}
+main{padding:14px 14px 95px} .card{background:#fff;border:1px solid #e6ebf1;border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 4px 14px #13243a08}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px} label{font-size:11px;color:#667386;display:block;margin-bottom:5px} input,select{width:100%;border:1px solid #d9e0e8;border-radius:11px;padding:11px;background:#fbfcfe;font-size:14px;outline:none} input:focus,select:focus{border-color:#0b6e69;box-shadow:0 0 0 3px #0b6e6912}
+.topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px} .topline h2{font-size:15px;margin:0} .count{font-size:12px;color:#0b6e69;font-weight:700}
+.search{position:relative;margin-bottom:10px} .search input{padding-right:38px} .search span{position:absolute;right:13px;top:11px}
+.tabs{display:flex;gap:7px;overflow:auto;padding-bottom:4px;margin-bottom:10px} .tab{white-space:nowrap;border:1px solid #dce4eb;background:#fff;padding:8px 11px;border-radius:999px;font-size:12px;cursor:pointer} .tab.active{background:#0b6e69;color:#fff;border-color:#0b6e69}
+.item{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #edf0f4;gap:10px} .item:last-child{border-bottom:0} .name{font-size:13px;font-weight:700} .cat{font-size:10px;color:#8a95a4;margin-top:3px}
+.counter{display:flex;align-items:center;gap:8px;direction:ltr} .btn{width:35px;height:35px;border:0;border-radius:10px;font-size:20px;font-weight:700;cursor:pointer} .minus{background:#f0f3f6;color:#647184} .plus{background:#0b6e69;color:white} .num{min-width:24px;text-align:center;font-weight:800}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);background:#fff;border-top:1px solid #e4e9ef;padding:10px 14px;display:flex;gap:9px;box-shadow:0 -6px 18px #12233a12}
+.primary{flex:1;border:0;background:#0b6e69;color:#fff;border-radius:13px;padding:13px;font-weight:800;font-size:14px;cursor:pointer} .secondary{width:52px;border:1px solid #dbe2e9;background:#fff;border-radius:13px;font-size:18px;cursor:pointer}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px} .stat{background:#f3f7f8;border-radius:13px;padding:10px;text-align:center} .stat b{display:block;font-size:19px} .stat span{font-size:10px;color:#718096}
+#toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-20px);opacity:0;background:#142033;color:#fff;padding:11px 16px;border-radius:999px;font-size:12px;transition:.25s;z-index:20} #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modal{position:fixed;inset:0;background:#07132188;display:none;align-items:flex-end;justify-content:center;z-index:10} .modal.show{display:flex} .sheet{background:#fff;width:min(520px,100%);border-radius:22px 22px 0 0;padding:18px;max-height:80vh;overflow:auto} .sheet h3{margin-top:0} .row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;font-size:13px}
+.empty{text-align:center;padding:25px;color:#7b8795;font-size:13px}
+
+.patientbar{display:flex;gap:8px;align-items:center;overflow:auto;margin-bottom:10px}
+.patienttab{flex:0 0 auto;border:1px solid #dce4eb;background:#fff;padding:9px 12px;border-radius:12px;font-size:12px;cursor:pointer}
+.patienttab.active{background:#123b5d;color:#fff;border-color:#123b5d}
+.addpatient{flex:0 0 auto;border:0;background:#0b6e69;color:#fff;padding:9px 12px;border-radius:12px;font-weight:800;cursor:pointer}
+.danger{background:#fff2f2!important;color:#b42318!important;border-color:#ffd2d2!important}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+ <div class="brand"><div><small>مركز الملك فيصل التخصصي</small><h1>نظام استهلاك المستلزمات</h1></div><div style="font-size:28px">＋</div></div>
+ <div class="status"><span class="pill">● النظام جاهز</span><span class="pill" id="savedPill">لم يتم الحفظ</span></div>
+</header>
+<main>
+ <section class="card">
+  <div class="topline"><h2>المرضى</h2><span class="count" id="patientCount">1 مريض</span></div>
+  <div class="patientbar" id="patientBar"></div>
+  <div class="grid">
+   <div><label>اسم المريض</label><input id="patient" placeholder="اكتب الاسم"></div>
+   <div><label>رقم السرير / الغرفة</label><input id="bed" placeholder="مثال: 12"></div>
+   <div><label>الطبيب المعالج</label><input id="doctor" placeholder="اختياري"></div>
+   <div><label>اسم الممرض</label><input id="nurse" placeholder="اسم الممرض"></div>
+   <div><label>الشيفت</label><select id="shift"><option>صباحي</option><option>مسائي</option><option>كامل 24 ساعة</option></select></div>
+  </div>
+ </section>
+
+ <section class="card">
+  <div class="topline"><h2>الاستهلاك الحالي</h2><span class="count" id="totalCount">0 قطعة</span></div>
+  <div class="stats">
+   <div class="stat"><b id="usedKinds">0</b><span>أصناف مستخدمة</span></div>
+   <div class="stat"><b id="usedTotal">0</b><span>إجمالي القطع</span></div>
+   <div class="stat"><b id="lastAction">—</b><span>آخر تسجيل</span></div>
+  </div>
+ </section>
+
+ <section class="card">
+  <div class="search"><span>⌕</span><input id="search" placeholder="ابحث عن المستلزم..."></div>
+  <div class="tabs" id="tabs"></div>
+  <div id="list"></div>
+ </section>
+</main>
+<div class="bottom">
+ <button class="secondary" onclick="openSummary()">☷</button>
+ <button class="primary" onclick="saveRecord()">✓ حفظ واعتماد الاستهلاك</button>
+</div>
+</div>
+<div id="toast"></div>
+<div class="modal" id="modal" onclick="if(event.target===this)closeSummary()">
+ <div class="sheet">
+  <h3>مراجعة قبل الاعتماد</h3>
+  <div id="summary"></div>
+  <button class="primary" style="width:100%;margin-top:12px" onclick="closeSummary()">رجوع للتعديل</button>
+ </div>
+</div>
+<script>
+const ITEMS=[{"id": 1, "name": "جوانتي معقم (أي مقاس)", "cat": "مستلزمات وقاية"}, {"id": 2, "name": "كمامة جراحية", "cat": "مستلزمات وقاية"}, {"id": 3, "name": "غطاء رأس", "cat": "مستلزمات وقاية"}, {"id": 4, "name": "غطاء حذاء", "cat": "مستلزمات وقاية"}, {"id": 5, "name": "سرنجة 2.5 سم", "cat": "حقن وسحب"}, {"id": 6, "name": "سرنجة 5 سم", "cat": "حقن وسحب"}, {"id": 7, "name": "سرنجة 10 سم", "cat": "حقن وسحب"}, {"id": 8, "name": "سرنجة 20 سم", "cat": "حقن وسحب"}, {"id": 9, "name": "سرنجة 50 مل", "cat": "حقن وسحب"}, {"id": 10, "name": "إبرة أنسولين", "cat": "حقن وسحب"}, {"id": 11, "name": "إبرة عادية", "cat": "حقن وسحب"}, {"id": 12, "name": "كانيولا", "cat": "محاليل ووريدي"}, {"id": 13, "name": "جهاز محلول", "cat": "محاليل ووريدي"}, {"id": 14, "name": "وصلة ثلاثية", "cat": "محاليل ووريدي"}, {"id": 15, "name": "وصلة محاليل", "cat": "محاليل ووريدي"}, {"id": 16, "name": "زجاجة محلول ملح", "cat": "محاليل ووريدي"}, {"id": 17, "name": "زجاجة محلول جلوكوز 5%", "cat": "محاليل ووريدي"}, {"id": 18, "name": "زجاجة محلول جلوكوز 10%", "cat": "محاليل ووريدي"}, {"id": 19, "name": "زجاجة محلول جلوكوز 25%", "cat": "محاليل ووريدي"}, {"id": 20, "name": "زجاجة محلول رينجر", "cat": "محاليل ووريدي"}, {"id": 21, "name": "كيس مايكروست", "cat": "محاليل ووريدي"}, {"id": 22, "name": "كيس دم", "cat": "محاليل ووريدي"}, {"id": 23, "name": "شاش معقم", "cat": "غيار وعناية"}, {"id": 24, "name": "شاش غير معقم", "cat": "غيار وعناية"}, {"id": 25, "name": "قطن", "cat": "غيار وعناية"}, {"id": 26, "name": "بيتادين", "cat": "غيار وعناية"}, {"id": 27, "name": "فيوسيدين/مرهم", "cat": "غيار وعناية"}, {"id": 28, "name": "رباط ضاغط", "cat": "غيار وعناية"}, {"id": 29, "name": "بلاستر", "cat": "غيار وعناية"}, {"id": 30, "name": "لاصق طبي", "cat": "غيار وعناية"}, {"id": 31, "name": "كيس قسطرة بول", "cat": "قسطرة"}, {"id": 32, "name": "قسطرة بولية", "cat": "قسطرة"}, {"id": 33, "name": "جل مزلق", "cat": "قسطرة"}, {"id": 34, "name": "كيس جمع بول", "cat": "قسطرة"}, {"id": 35, "name": "أنبوبة تغذية", "cat": "أنابيب"}, {"id": 36, "name": "أنبوبة شفط", "cat": "أنابيب"}, {"id": 37, "name": "قسطرة أكسجين", "cat": "أكسجين وتنفس"}, {"id": 38, "name": "ماسك أكسجين كبار", "cat": "أكسجين وتنفس"}, {"id": 39, "name": "ماسك أكسجين أطفال", "cat": "أكسجين وتنفس"}, {"id": 40, "name": "ماسك نيبولايزر كبار/أطفال", "cat": "أكسجين وتنفس"}, {"id": 41, "name": "وصلة أكسجين", "cat": "أكسجين وتنفس"}, {"id": 42, "name": "شفاط/كانولا شفط", "cat": "أكسجين وتنفس"}, {"id": 43, "name": "كيس نفايات", "cat": "نظافة ونفايات"}, {"id": 44, "name": "ترمومتر", "cat": "أدوات"}, {"id": 45, "name": "كيس عينات", "cat": "عينات"}];
+let qty={}, activeCat="الكل";
+const cats=["الكل",...new Set(ITEMS.map(x=>x.cat))];
+const tabs=document.getElementById("tabs"), list=document.getElementById("list");
+cats.forEach(c=>{let b=document.createElement("button");b.className="tab"+(c==="الكل"?" active":"");b.textContent=c;b.onclick=()=>{activeCat=c;document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");render()};tabs.appendChild(b)});
+
+
+let patients=[{id:1,name:"مريض 1",bed:"",doctor:"",nurse:"",shift:"صباحي",qty:{}}];
+let activePatient=1;
+
+function activeP(){ return patients.find(p=>p.id===activePatient); }
+
+function renderPatients(){
+ const bar=document.getElementById("patientBar");
+ bar.innerHTML="";
+ patients.forEach(p=>{
+   const b=document.createElement("button");
+   b.className="patienttab"+(p.id===activePatient?" active":"");
+   b.textContent=(p.name||"مريض "+p.id);
+   b.onclick=()=>switchPatient(p.id);
+   bar.appendChild(b);
+ });
+ const add=document.createElement("button");
+ add.className="addpatient";
+ add.textContent="+ مريض";
+ add.onclick=addPatient;
+ bar.appendChild(add);
+ document.getElementById("patientCount").textContent=patients.length+" مريض";
+}
+
+function syncFormToPatient(){
+ const p=activeP();
+ if(!p) return;
+ p.name=document.getElementById("patient").value.trim() || ("مريض "+p.id);
+ p.bed=document.getElementById("bed").value;
+ p.doctor=document.getElementById("doctor").value;
+ p.nurse=document.getElementById("nurse").value;
+ p.shift=document.getElementById("shift").value;
+}
+
+function loadPatient(p){
+ document.getElementById("patient").value=p.name||"";
+ document.getElementById("bed").value=p.bed||"";
+ document.getElementById("doctor").value=p.doctor||"";
+ document.getElementById("nurse").value=p.nurse||"";
+ document.getElementById("shift").value=p.shift||"صباحي";
+ qty=p.qty;
+}
+
+function switchPatient(id){
+ syncFormToPatient();
+ activePatient=id;
+ loadPatient(activeP());
+ renderPatients();
+ render();
+}
+
+function addPatient(){
+ syncFormToPatient();
+ const id=Math.max(...patients.map(p=>p.id))+1;
+ patients.push({id,name:"مريض "+id,bed:"",doctor:"",nurse:"",shift:"صباحي",qty:{}});
+ activePatient=id;
+ loadPatient(activeP());
+ renderPatients();
+ render();
+ document.getElementById("patient").focus();
+}
+
+function render(){
+ const q=document.getElementById("search").value.trim().toLowerCase();
+ const arr=ITEMS.filter(x=>(activeCat==="الكل"||x.cat===activeCat)&&x.name.toLowerCase().includes(q));
+ list.innerHTML="";
+ if(!arr.length){list.innerHTML='<div class="empty">مفيش أصناف مطابقة للبحث</div>';return}
+ arr.forEach(x=>{
+  const n=qty[x.id]||0;
+  const d=document.createElement("div");d.className="item";
+  d.innerHTML=`<div><div class="name">${x.name}</div><div class="cat">${x.cat}</div></div>
+   <div class="counter"><button class="btn minus" onclick="change(${x.id},-1)">−</button><span class="num" id="n-${x.id}">${n}</span><button class="btn plus" onclick="change(${x.id},1)">+</button></div>`;
+  list.appendChild(d);
+ });
+ updateStats();
+}
+function change(id,delta){
+ const p=activeP();
+ p.qty=qty;
+ qty[id]=Math.max(0,(qty[id]||0)+delta);
+ p.qty=qty;
+ const el=document.getElementById("n-"+id); if(el) el.textContent=qty[id];
+ updateStats();
+ document.getElementById("lastAction").textContent="الآن";
+}
+function updateStats(){
+ let vals=Object.values(qty), total=vals.reduce((a,b)=>a+b,0), kinds=vals.filter(x=>x>0).length;
+ document.getElementById("usedKinds").textContent=kinds;
+ document.getElementById("usedTotal").textContent=total;
+ document.getElementById("totalCount").textContent=total+" قطعة";
+}
+document.getElementById("search").addEventListener("input",render);
+
+function openSummary(){
+ syncFormToPatient();
+ const s=document.getElementById("summary");
+ const blocks=patients.map(p=>{
+   const selected=ITEMS.filter(x=>(p.qty[x.id]||0)>0);
+   if(!selected.length) return "";
+   return `<div style="margin-bottom:14px"><b>${p.name||"مريض"} — سرير ${p.bed||"—"} — ${p.shift}</b>`+
+     selected.map(x=>`<div class="row"><span>${x.name}</span><b>${p.qty[x.id]} ×</b></div>`).join("")+
+     `</div>`;
+ }).filter(Boolean);
+ s.innerHTML=blocks.length?blocks.join(""):'<div class="empty">لسه مفيش مستلزمات متسجلة لأي مريض.</div>';
+ document.getElementById("modal").classList.add("show");
+}
+
+function closeSummary(){document.getElementById("modal").classList.remove("show")}
+function saveRecord(){
+ syncFormToPatient();
+ const records=patients.map(p=>({
+   patient:p.name,
+   bed:p.bed,
+   doctor:p.doctor,
+   nurse:p.nurse,
+   shift:p.shift,
+   items:ITEMS.filter(x=>(p.qty[x.id]||0)>0).map(x=>({name:x.name,qty:p.qty[x.id]}))
+ })).filter(r=>r.items.length);
+
+ if(!records.length){toast("سجل مستلزمًا واحدًا على الأقل لأي مريض");return}
+ const record={
+   hospital:"مركز الملك فيصل التخصصي",
+   time:new Date().toLocaleString("ar-EG"),
+   patients:records
+ };
+ localStorage.setItem("lastConsumablesRecord",JSON.stringify(record));
+ document.getElementById("savedPill").textContent="تم الحفظ ✓";
+ toast("تم حفظ واعتماد استهلاك "+records.length+" مريض");
+}
+
+function toast(t){const x=document.getElementById("toast");x.textContent=t;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),2200)}
+renderPatients();
+loadPatient(activeP());
+render();
+</script>
+</body></html>
